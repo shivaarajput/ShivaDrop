@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ShivaDrop - Fast, Secure, Peer-to-Peer File Sharing</title>
+
+  <meta name="description"
+    content="ShivaDrop is a fast, secure, and peer-to-peer file sharing application built with WebRTC. Easily share files directly between devices without a central server.">
+  <meta name="keywords"
+    content="ShivaDrop, file sharing, P2P, peer-to-peer, WebRTC, secure file transfer, fast file sharing, decentralized, private file transfer">
+  <meta name="author" content="Shiva Rajput">
+  <link rel="canonical" href="https://shivadrop.onrender.com/">
+
+  <meta property="og:title" content="ShivaDrop - Fast & Secure P2P File Sharing">
+  <meta property="og:description"
+    content="Share files directly between devices with ShivaDrop. It's fast, secure, and completely peer-to-peer.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://shivadrop.onrender.com/">
+  <meta property="og:image"
+    content="https://raw.githubusercontent.com/shivaarajput/ShivaDrop/refs/heads/main/public/images/preview-image.jpg">
+  <meta property="og:image:alt" content="ShivaDrop application interface showing a smartphone mockup for file sharing.">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ShivaDrop - Fast & Secure P2P File Sharing">
+  <meta name="twitter:description"
+    content="Share files directly between devices with ShivaDrop. It's fast, secure, and completely peer-to-peer.">
+  <meta name="twitter:image"
+    content="https://raw.githubusercontent.com/shivaarajput/ShivaDrop/refs/heads/main/public/images/preview-image.jpg">
+
+  <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+  <link rel="shortcut icon" href="/images/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- <link rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Ccircle cx='128' cy='128' r='120' fill='%232563eb'/%3E%3Cpath d='M80 136l40 40 56-88' stroke='%23fff' stroke-width='20' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" /> -->
+  <style>
+    .glass {
+      backdrop-filter: blur(10px);
+      background: rgba(15, 23, 42, .5);
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .dropzone.dragover {
+      outline: 2px dashed #60a5fa;
+      outline-offset: 0;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-100">
+  <header class="max-w-5xl mx-auto px-4 pt-8 pb-4">
+    <div class="flex items-center justify-between">
+      <h1 class="text-3xl font-extrabold tracking-tight">ShivaDrop <span
+          class="text-slate-400 text-base font-semibold align-super">WebRTC P2P</span></h1>
+      <a href="#footer" class="text-sm opacity-80 hover:opacity-100 underline">About</a>
+    </div>
+  </header>
+  <main class="max-w-5xl mx-auto px-4 pb-24">
+    <section class="grid md:grid-cols-3 gap-4">
+      <div class="md:col-span-2 glass rounded-2xl p-5 shadow-xl ring-1 ring-white/10">
+        <div class="flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-400"></div>
+          <div class="text-sm opacity-80">Status: <span id="status">Idle</span></div>
+        </div>
+        <div class="mt-4 grid md:grid-cols-2 gap-4">
+          <div class="rounded-xl bg-slate-900/40 ring-1 ring-white/10 p-4">
+            <h2 class="font-bold text-lg mb-2">1) Connect</h2>
+            <div class="flex flex-wrap gap-2">
+              <button id="btnCreateRoom" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold">Create
+                Room</button>
+              <!-- Initial button to show the join input -->
+              <button id="btnShowJoin" class="px-4 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 font-semibold">Join
+                Room</button>
+              <!-- Join room input and button are now hidden initially -->
+              <div id="joinInputGroup" class="flex flex-wrap gap-2 hidden">
+                <input type="text" id="roomCodeInput" placeholder="Enter room code"
+                  class="px-4 py-2 rounded-xl bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <button id="btnJoinRoom"
+                  class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold">Join</button>
+              </div>
+            </div>
+            <div class="mt-3 text-sm opacity-90">Room Code: <span id="roomCode" class="mono text-blue-300">—</span>
+            </div>
+            <div id="qrWrap" class="mt-3 hidden">
+              <div class="text-xs opacity-80 mb-1">Scan to join:</div>
+              <div id="qrcode" class="bg-white p-2 inline-block rounded-lg"></div>
+              <div class="flex items-center gap-2 mt-2">
+                <span id="joinLink" class="text-xs break-all opacity-80 flex-1"></span>
+                <button id="copyLinkBtn"
+                  class="px-3 py-1 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-semibold">Copy Link</button>
+              </div>
+            </div>
+          </div>
+          <div class="rounded-xl bg-slate-900/40 ring-1 ring-white/10 p-4">
+            <h2 class="font-bold text-lg mb-2">2) Send a File</h2>
+            <label class="block">
+              <input type="file" id="fileInput" class="hidden" disabled />
+              <span id="chooseFileBtn"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-600 font-semibold cursor-not-allowed opacity-50">Choose
+                File</span>
+            </label>
+            <div id="dropzone"
+              class="dropzone mt-3 h-28 rounded-xl border border-dashed border-slate-600 flex items-center justify-center text-slate-300 opacity-50 pointer-events-none">
+              Drop file here</div>
+            <div id="sendInfo" class="mt-3 text-sm opacity-80">No file selected.</div>
+            <div id="sendProgressWrap" class="mt-2 hidden">
+              <div class="flex justify-between text-xs mb-1"><span>Sending</span><span id="sendPct">0%</span></div>
+              <div class="w-full h-2 rounded bg-slate-700 overflow-hidden">
+                <div id="sendBar" class="h-2 bg-emerald-500 w-0"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4 grid md:grid-cols-2 gap-4">
+          <div class="rounded-xl bg-slate-900/40 ring-1 ring-white/10 p-4">
+            <h2 class="font-bold text-lg mb-2">Sent Files</h2>
+            <div id="sentList" class="mt-3 space-y-2"></div>
+          </div>
+          <div class="rounded-xl bg-slate-900/40 ring-1 ring-white/10 p-4">
+            <h2 class="font-bold text-lg mb-2">Received Files</h2>
+            <div id="recvInfo" class="text-sm opacity-80">Waiting for connection…</div>
+            <div id="recvProgressWrap" class="mt-2 hidden">
+              <div class="flex justify-between text-xs mb-1"><span>Receiving</span><span id="recvPct">0%</span></div>
+              <div class="w-full h-2 rounded bg-slate-700 overflow-hidden">
+                <div id="recvBar" class="h-2 bg-blue-500 w-0"></div>
+              </div>
+            </div>
+            <div id="recvList" class="mt-3 space-y-2"></div>
+          </div>
+        </div>
+      </div>
+      <aside class="glass rounded-2xl p-5 shadow-xl ring-1 ring-white/10 space-y-3">
+        <h3 class="font-bold text-lg">How it works</h3>
+        <ul class="text-sm list-disc pl-5 opacity-90 space-y-1">
+          <li>P2P via WebRTC DataChannel — files never touch a server.</li>
+          <li>WebSocket server is used <em>only</em> for signaling.</li>
+          <li>No database, no uploads, no storage.</li>
+          <li>Big files (200–500MB+) possible if both peers stay online.</li>
+        </ul>
+        <div class="text-xs opacity-70">
+          Tip: If college Wi-Fi blocks P2P, use your phone’s hotspot.
+        </div>
+      </aside>
+    </section>
+  </main>
+  <footer id="footer" class="py-8 text-center text-slate-400">
+    <p class="text-sm">Made with ❤️ by <a href="https://instagram.com/shivamsinghamrajput" target="_blank"
+        class="underline hover:text-slate-200">Shiva</a></p>
+  </footer>
+  <script>
+    // Helper for selecting elements
+    const $ = (s) => document.querySelector(s);
+    const statusEl = $('#status');
+    const roomCodeEl = $('#roomCode');
+    const qrWrap = $('#qrWrap');
+    const joinLinkEl = $('#joinLink');
+    const joinInputGroup = $('#joinInputGroup'); // New element to control visibility
+    const btnShowJoin = $('#btnShowJoin');      // New button to show the input
+    const roomCodeInput = $('#roomCodeInput');
+    const btnCreateRoom = $('#btnCreateRoom');
+    const btnJoinRoom = $('#btnJoinRoom');
+    const copyLinkBtn = $('#copyLinkBtn');
+
+    const fileInput = $('#fileInput');
+    const chooseFileBtn = $('#chooseFileBtn');
+    const dropzone = $('#dropzone');
+    const sendInfo = $('#sendInfo');
+    const sendWrap = $('#sendProgressWrap');
+    const sendBar = $('#sendBar');
+    const sendPct = $('#sendPct');
+    const sentList = $('#sentList');
+    const recvInfo = $('#recvInfo');
+    const recvWrap = $('#recvProgressWrap');
+    const recvBar = $('#recvBar');
+    const recvPct = $('#recvPct');
+    const recvList = $('#recvList');
+
+    // STUN server configuration for NAT traversal
+    const STUN = { 'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }] };
+    let pc, dc, ws, roomCode = null, incoming = null;
+    let reconnectAttempts = 0;
+    const MAX_RECONNECT_ATTEMPTS = 5;
+
+    // IMPORTANT: The signaling URL is now dynamic to match your server.
+    const SIGNAL_URL = location.protocol.replace('http', 'ws') + '//' + location.host;
+
+    // Function to update the status message on the UI
+    function setStatus(t) {
+      statusEl.textContent = t;
+    }
+
+    // Function to enable file sending UI elements
+    function enableSending() {
+      fileInput.disabled = false;
+      chooseFileBtn.classList.remove("bg-gray-600", "cursor-not-allowed", "opacity-50");
+      chooseFileBtn.classList.add("bg-emerald-600", "hover:bg-emerald-500", "cursor-pointer");
+      dropzone.classList.remove("opacity-50", "pointer-events-none");
+    }
+
+    // Function to display the QR code and join link
+    function showQR(url) {
+      qrWrap.classList.remove('hidden');
+      $('#qrcode').innerHTML = '';
+      new QRCode('qrcode', { text: url, width: 160, height: 160 });
+      joinLinkEl.textContent = url;
+    }
+
+    // Establishes a WebSocket connection to the signaling server
+    function connectSignaling(role) {
+      return new Promise((resolve, reject) => {
+        ws = new WebSocket(SIGNAL_URL + `?room=${roomCode}&role=${role}`);
+        ws.onopen = () => {
+          console.log("Connected to signaling server");
+          reconnectAttempts = 0;
+          resolve();
+        };
+        ws.onerror = (err) => {
+          console.error("WebSocket Error:", err);
+          reject(err);
+        };
+        // The onmessage handler processes all signaling messages
+        ws.onmessage = (msg) => handleSignal(JSON.parse(msg.data), role);
+        ws.onclose = () => {
+          console.log("WebSocket disconnected. Attempting to reconnect...");
+          if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+            reconnectAttempts++;
+            setTimeout(() => {
+              console.log(`Reconnecting (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`);
+              connectSignaling(role);
+            }, 3000);
+          } else {
+            console.error("Max reconnect attempts reached. Giving up.");
+            setStatus("Disconnected. Please reload to try again.");
+          }
+        };
+      });
+    }
+
+
+    // Creates a new RTCPeerConnection and sets up event handlers
+    function newPeer() {
+      pc = new RTCPeerConnection(STUN);
+
+      // This event fires whenever an ICE candidate is generated.
+      // We send this candidate to the other peer via the signaling server.
+      pc.onicecandidate = (e) => {
+        if (e.candidate) {
+          // We no longer send the role, as it's not needed for the unified logic
+          ws.send(JSON.stringify({ type: "ice", candidate: e.candidate, room: roomCode }));
+        }
+      };
+
+      // Tracks the state of the WebRTC connection.
+      pc.onconnectionstatechange = () => {
+        setStatus('WebRTC: ' + pc.connectionState);
+        if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+          console.log("WebRTC connection lost. Attempting to reconnect signaling server.");
+          // The onclose handler for the WebSocket will handle the reconnection logic.
+        }
+      };
+
+      // This event fires when the remote peer creates a data channel.
+      pc.ondatachannel = (e) => setupDataChannel(e.channel);
+    }
+
+    // Sets up the data channel to handle file transfers
+    function setupDataChannel(channel) {
+      dc = channel;
+      dc.binaryType = 'arraybuffer';
+
+      // The onopen event is the most important part!
+      // It signals that the P2P connection is fully established and ready for data.
+      dc.onopen = () => {
+        setStatus('Connected — ready to send files ✅');
+        enableSending();
+      };
+      dc.onclose = () => setStatus('Disconnected');
+      dc.onmessage = onData;
+    }
+
+    // Handles signaling messages received from the server
+    async function handleSignal(data, currentRole) {
+      // If the peer connection doesn't exist yet, create it.
+      if (!pc) newPeer();
+
+      // The peer that receives an offer will be the one to create an answer.
+      if (data.type === "offer") {
+        await pc.setRemoteDescription(new RTCSessionDescription(data));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        ws.send(JSON.stringify({ ...answer, room: roomCode }));
+      } else if (data.type === "answer") {
+        await pc.setRemoteDescription(new RTCSessionDescription(data));
+      } else if (data.type === "ice") {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        } catch (e) {
+          console.warn("ICE add failed", e);
+        }
+      } else if (data.type === 'ready' && currentRole === 'sender') {
+        // The server sent a 'ready' message, which means the receiver is connected.
+        // Now we can proceed with the offer-answer exchange.
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify({ ...offer, room: roomCode }));
+        setStatus("Peer connected. Sending offer...");
+      } else if (data.type === 'error' && data.message === 'room_not_found') {
+        // Added error handling for room not found.
+        setStatus('Error: Room not found. Please check the code.');
+        // Close the WebSocket connection to prevent further attempts.
+        ws.close();
+      }
+    }
+
+    // Helper function for human-readable file sizes
+    function human(n) {
+      if (n < 1024) return n + ' B';
+      if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+      if (n < 1024 * 1024 * 1024) return (n / 1024 / 1024).toFixed(1) + ' MB';
+      return (n / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+    }
+
+    // --- Sending ---
+    fileInput.addEventListener('change', () => { if (fileInput.files[0]) startSend(fileInput.files[0]); });
+    ['dragenter', 'dragover'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.add('dragover'); }));
+    ['dragleave', 'drop'].forEach(evt => dropzone.addEventListener(evt, e => { e.preventDefault(); dropzone.classList.remove('dragover'); }));
+    dropzone.addEventListener('drop', e => { const f = e.dataTransfer.files && e.dataTransfer.files[0]; if (f) startSend(f); });
+
+    // Helper function to truncate a string with an ellipsis in the middle
+    function truncateName(name, maxLength = 25) {
+      if (name.length <= maxLength) return name;
+      const start = name.slice(0, Math.floor(maxLength / 2) - 2);
+      const end = name.slice(name.length - (Math.ceil(maxLength / 2) - 3));
+      return `${start}...${end}`;
+    }
+
+    async function startSend(file) {
+      // Check if the data channel is open before sending
+      if (!dc || dc.readyState !== 'open') {
+        // Use a custom modal instead of alert()
+        const modal = document.createElement('div');
+        modal.innerHTML = `
+               <div class="fixed inset-0 bg-slate-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+                 <div class="bg-slate-800 p-6 rounded-lg shadow-xl text-center">
+                   <h3 class="text-xl font-bold mb-2">Not Connected</h3>
+                   <p class="text-sm opacity-80">Please ensure the other peer is connected before sending files.</p>
+                   <button class="mt-4 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold" onclick="this.parentElement.parentElement.remove()">OK</button>
+                 </div>
+               </div>
+             `;
+        document.body.appendChild(modal);
+        return;
+      }
+      sendInfo.textContent = `Selected: ${file.name} (${human(file.size)})`;
+      sendWrap.classList.remove('hidden');
+      sendBar.style.width = '0%'; sendPct.textContent = '0%';
+
+      // Add a progress bar to the sent list
+
+      const sentItem = document.createElement('div');
+      sentItem.className = 'p-3 rounded-lg bg-slate-800 ring-1 ring-white/5';
+      sentItem.innerHTML = `
+           <div class="flex justify-between text-sm opacity-90">${truncateName(file.name)}</div>
+           <div class="mt-1 w-full h-2 rounded bg-slate-700 overflow-hidden">
+             <div class="sent-bar h-2 bg-emerald-500 w-0 transition-all duration-100 ease-linear"></div>
+           </div>
+           <div class="text-xs opacity-70 mt-1 flex justify-between">
+             <span class="sent-status">Sending...</span>
+             <span class="sent-pct">0%</span>
+           </div>
+         `;
+      sentList.appendChild(sentItem);
+      const sentBar = sentItem.querySelector('.sent-bar');
+      const sentPct = sentItem.querySelector('.sent-pct');
+      const sentStatus = sentItem.querySelector('.sent-status');
+
+      // Send the file metadata
+      dc.send(JSON.stringify({ type: 'file-meta', name: file.name, size: file.size }));
+
+      // Send the file in chunks
+      const chunkSize = 64 * 1024;
+      let offset = 0;
+      while (offset < file.size) {
+        const slice = file.slice(offset, offset + chunkSize);
+        const buf = await slice.arrayBuffer();
+        // Flow control: wait if the buffer is getting too large
+        while (dc.bufferedAmount > 4 * 1024 * 1024) {
+          await new Promise(r => setTimeout(r, 20));
+        }
+        dc.send(buf);
+        offset += buf.byteLength;
+        const pct = Math.round((offset / file.size) * 100);
+        sendBar.style.width = pct + '%'; sendPct.textContent = pct + '%';
+        sentBar.style.width = pct + '%'; sentPct.textContent = pct + '%';
+      }
+      // Signal the end of the file
+      dc.send(JSON.stringify({ type: 'file-complete' }));
+      setStatus('File sent');
+      sentStatus.textContent = `Sent: ${human(file.size)}`;
+      sendWrap.classList.add('hidden');
+    }
+
+    // --- Receiving ---
+    function onData(ev) {
+      if (typeof ev.data === 'string') {
+        try {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === 'file-meta') {
+            incoming = { name: msg.name, size: msg.size, received: 0, chunks: [] };
+            recvInfo.textContent = `Receiving: ${truncateName(incoming.name, 40)} (${human(incoming.size)})`;
+            recvWrap.classList.remove('hidden');
+            recvBar.style.width = '0%'; recvPct.textContent = '0%';
+            return;
+          }
+          if (msg.type === 'file-complete') {
+            const blob = new Blob(incoming.chunks);
+            const url = URL.createObjectURL(blob);
+
+            const listItem = document.createElement('div');
+            listItem.className = 'p-3 rounded-lg bg-slate-800 ring-1 ring-white/5';
+            listItem.innerHTML = `
+                 <div class="text-sm opacity-90">${truncateName(incoming.name)}</div>
+                 <a href="${url}" download="${incoming.name}" class="inline-block mt-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-white text-sm">Download</a>
+               `;
+            recvList.appendChild(listItem);
+
+            recvInfo.textContent = 'Ready to receive more files';
+            recvWrap.classList.add('hidden');
+            incoming = null;
+            return;
+          }
+        } catch (_) { }
+      }
+
+      if (incoming) {
+        incoming.chunks.push(ev.data);
+        incoming.received += ev.data.byteLength;
+        const pct = Math.round((incoming.received / incoming.size) * 100);
+        recvBar.style.width = pct + '%'; recvPct.textContent = pct + '%';
+      }
+    }
+
+    // --- Button & URL Logic ---
+    btnCreateRoom.addEventListener('click', async () => {
+      roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      roomCodeEl.textContent = roomCode;
+      await connectSignaling('sender'); // Use 'sender' role to get 'ready' signal from server
+      newPeer();
+      dc = pc.createDataChannel('file');
+      setupDataChannel(dc);
+      setStatus('Room created. Share code with peer.');
+      const joinUrl = location.origin + location.pathname + `?room=${roomCode}`;
+      showQR(joinUrl);
+    });
+
+    // Show the join input when the "Join Room" button is clicked
+    btnShowJoin.addEventListener('click', () => {
+      btnShowJoin.classList.add('hidden');
+      joinInputGroup.classList.remove('hidden');
+    });
+
+    btnJoinRoom.addEventListener('click', async () => {
+      const inputRoomCode = roomCodeInput.value.trim();
+      if (inputRoomCode) {
+        roomCode = inputRoomCode.toUpperCase();
+        roomCodeEl.textContent = roomCode;
+        await connectSignaling('receiver'); // Use 'receiver' role to wait for an offer
+        newPeer();
+        setStatus('Joined room ' + roomCode + ', waiting for peer…');
+      } else {
+        setStatus('Please enter a room code to join.');
+      }
+    });
+
+    // Added logic to copy the QR code link to the clipboard
+    copyLinkBtn.addEventListener('click', () => {
+      const link = joinLinkEl.textContent;
+      if (link) {
+        // Create a temporary input element to copy from
+        const tempInput = document.createElement('textarea');
+        tempInput.value = link;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+
+        const originalText = copyLinkBtn.textContent;
+        copyLinkBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyLinkBtn.textContent = originalText;
+        }, 1500);
+      }
+    });
+
+    // --- Auto join from URL ---
+    const params = new URLSearchParams(location.search);
+    if (params.get("room")) {
+      roomCode = params.get("room").toUpperCase();
+      roomCodeEl.textContent = roomCode;
+      (async () => {
+        // Auto-join as a receiver
+        await connectSignaling('receiver');
+        newPeer();
+        setStatus("Auto-joined room " + roomCode + ", waiting for peer…");
+      })();
+    }
+  </script>
+</body>
+
+</html>
